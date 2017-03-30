@@ -162,7 +162,7 @@ for x in range(5):
 print('\n\nActors with the most movie credits from the top rated list')
 print('-' * 50)
 for x in range(5):
-    print(top_actors[x][0].ljust(20))
+    print(top_actors[x][0].ljust(20), str(top_actors[x][1]).rjust(10))
 
 print('\n\nMovies'.ljust(60) + 'Year'.ljust(10))
 print('-' * 40 + 'based on a combined rating/grossing score' + '-' * 40)
@@ -172,4 +172,4 @@ for x in range(5):
 print('\n\nActors who brought in the most box office money')
 print('-' * 50)
 for x in range(5):
-    print(top_grossing_actors[x][0].ljust(20))
+    print(top_grossing_actors[x][0].ljust(20), '{:20.2f}'.format(top_grossing_actors[x][1]).rjust(10))

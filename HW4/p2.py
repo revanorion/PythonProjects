@@ -1,4 +1,4 @@
-import copy
+import copy, math
 
 
 class Poly:
@@ -98,6 +98,40 @@ class Poly:
                 return False
         return True
 
+    def solve_x(self, X):
+        result = 0.0
+        for degree in self.coefficients:
+            result += self.coefficients[degree] * math.pow(X, degree)
+        return result
 
-p1 = Poly([1, -2, 1])
-p2 = Poly((0, 1))
+    def eval(self, X):
+        if isinstance(X, int) | isinstance(X, float):
+            return self.solve_x(X)
+        elif isinstance(X, list):
+            result = []
+            for Xvalue in X:
+                result.append(self.solve_x(Xvalue))
+            return result
+
+
+def test_poly():
+    p1 = Poly([1, -2, 1])  # poly of grade 2: p1(X)=1-2X+X2
+    p2 = Poly((0, 1))  # create poly of grade 1 with a tuple: p2(X)=X, (a0==0)
+    print(p1)  # print calls __str__ and prints 1.0-2.0X+X^2
+    print(p1 == p2)  # returns False
+    print(p1 == Poly((1, -2, 1)))  # return True
+    print(p1 != p2)  # returns True
+    p3 = p1 + p2  # sum, __add__
+    print(p3)  # prints 1.0-X+X^2.0 (use default number of decimals)
+    print(p1[1])  # indexing the coefficients: returns -2 (a1 for p1)
+    p4 = p2 * p1  # product with another Poly: p4 becomes X-2X^2+X^3
+    p5 = p1 * 2  # product with int or float: p5 becomes 2-4X+2X^2
+    p6 = 3 * p1  # product with int or float: p6 becomes 3-6X+3X^2 (__rmul__)
+    print(p4)
+    print(p5)
+    print(p6)
+    print(p1.eval(2))  # evaluate p1 at point 2: prints 1.0
+    print(p1.eval([0, -1, 1]))  # evaluate p1 for a list of points: prints [1,4,0]
+
+
+test_poly()

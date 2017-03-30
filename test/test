@@ -1,8 +1,4 @@
-a=1
-b=1
-a.__add__(b)
-print(a)
-#a.__add(b)
-#print(a)
-#a.operator+(b)
-print(a)
+import os
+
+fn = "/a/b/c/d.e"
+print(os.path.split(fn)[0] + ".f")
