@@ -1,3 +1,6 @@
+import os
+
+
 def ed_read(filename: str, from_index: int = 0, to: int = -1):
     """
     returns as a string the content of the file named filename, with
@@ -79,8 +82,9 @@ def ed_replace(filename, search_str, replace_with, occurrence=-1):
     try:
         search_indexes = ed_find(filename, search_str)
         if len(search_indexes) == 0 or len(search_indexes) - 1 < occurrence or occurrence < -1:
-            return
+            return 0
         with open(filename, mode='r+', encoding="utf8") as file:
+            replace_count = 0
             contents = file.read()
             file.seek(0)
             file.truncate()
@@ -89,15 +93,18 @@ def ed_replace(filename, search_str, replace_with, occurrence=-1):
                 replaced = contents
                 index = replaced.find(search_str)
                 while index != -1:
+                    replace_count += 1
                     replaced = replaced[:index] + replace_with + replaced[index + search_len:]
                     index = replaced.find(search_str)
                 file.write(replaced)
-                return
+                return replace_count
+            replace_count = 1
             index = search_indexes[occurrence]
             replaced = contents[:index] + replace_with + contents[index + search_len:]
             file.write(replaced)
+            return replace_count
     except OSError:
-        return
+        return 0
 
 
 def ed_append(filename, string):
@@ -109,7 +116,27 @@ def ed_append(filename, string):
     :param string:
     :return:
     """
-    return
+    try:
+        from pathlib import Path
+        if Path(filename).is_file():
+            with open(filename, mode='r+', encoding="utf8") as file:
+                file.read()
+                file.write(string)
+                return len(string)
+        else:
+            with open(filename, mode='w', encoding="utf8") as file:
+                file.write(string)
+                return len(string)
+    except IOError:
+        return 0
+
+
+def validate_file_tuple(filename, pos_str_col: list):
+    with open(filename, mode='r', encoding="utf8") as file:
+        max_length = len(file.read())
+        for str_col in pos_str_col:
+            if str_col[0] < 0 or str_col[0] > max_length:
+                raise ValueError("invalid position ", str_col[0])
 
 
 def ed_write(filename, pos_str_col):
@@ -124,7 +151,12 @@ def ed_write(filename, pos_str_col):
     :param pos_str_col:
     :return:
     """
-    return
+    validate_file_tuple(filename, pos_str_col)
+    with open(filename, mode='r+', encoding="utf8") as file:
+        for str_col in pos_str_col:
+            file.seek(str_col[0])
+            file.write(str_col[1])
+        return len(pos_str_col)
 
 
 def ed_insert(filename, pos_str_col):
@@ -139,12 +171,75 @@ def ed_insert(filename, pos_str_col):
     :param pos_str_col:
     :return:
     """
-    return
+    validate_file_tuple(filename, pos_str_col)
+    with open(filename, mode='r+', encoding="utf8") as file:
+        for str_col in pos_str_col:
+            file.seek(0)
+            contents = file.read()
+            file.seek(0)
+            contents = contents[:str_col[0]] + str_col[1] + contents[str_col[0]:]
+            file.truncate()
+            file.write(contents)
+        return len(pos_str_col)
 
 
-ed_read("file.txt")
-print('*' * 10)
-ed_replace("file.txt", "hello", "test")
-print('*' * 10)
-ed_read("file.txt")
-# print(ed_find("file.txt", "tests"))
+def testif(b, testname, msgOK="", msgFailed=""):
+    """Function used for testing.
+    :param b: boolean, normaly a tested conditionL true if passed, false otherwise
+    :param testname: the test name
+    :param msgOK: string to be printed if param b==True ( test condition true )
+    :param msgFailed: string to be printed if param b==False ( tes condition false)
+    :return: b
+    """
+    if b:
+        print("Success: ", testname, "; ", msgOK)
+    else:
+        print("Failed: ", testname, "; ", msgFailed)
+    return b
+
+
+def test_ed_write():
+    test_name = "test write"
+    test_fn = "test.txt"
+    from pathlib import Path
+    if Path(test_fn).is_file():
+        os.remove(test_fn)
+    initial_text = "abcdefg"
+    with open(test_fn, mode='w', encoding="utf8") as test_f:
+        test_f.write(initial_text)
+    try:
+        new_text = [(0, "0123")]
+        ret = ed_write(test_fn, new_text)
+        expected_text = "0123efg"
+        current_text = ""
+        with open(test_fn, mode="r", encoding="utf8") as test_f:
+            current_text = str(test_f.read())
+        cond = (ret == len(new_text) and (current_text == expected_text))
+        return testif(cond, test_name)
+    except Exception as exc:
+        print("Test {} failed due to exception: {}\n".format(test_name, str(exc)))
+        return False
+
+
+def test_ed_replace():
+    test_name = "test write"
+    test_fn = "test.txt"
+    from pathlib import Path
+    if Path(test_fn).is_file():
+        os.remove(test_fn)
+    initial_text = "abcdefg"
+    with open(test_fn, mode='w', encoding="utf8") as test_f:
+        test_f.write(initial_text)
+    try:
+        replace_text = "0123"
+        search_text = "cde"
+        ret = ed_replace(test_fn, search_text, replace_text)
+        expected_text = "ab0123fg"
+        current_text = ""
+        with open(test_fn, mode="r", encoding="utf8") as test_f:
+            current_text = str(test_f.read())
+        cond = (ret == 1 and (current_text == expected_text))
+        return testif(cond, test_name)
+    except Exception as exc:
+        print("Test {} failed due to exception: {}\n".format(test_name, str(exc)))
+        return False
