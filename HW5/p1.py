@@ -261,23 +261,39 @@ class Predator(Animal):
 
 class Human(Animal):
     def __init__(self, island, x=0, y=0, s="H"):
+        """
+        Creates new instance of the Human class
+        :param island: island object reference
+        :param x: x value on grid
+        :param y: y value on grid
+        :param s: character to display on the grid
+        """
         Animal.__init__(self, island, x, y, s)
         self.starve_clock = self.starve_time
         self.breed_clock = self.breed_time
         self.hunt_clock = self.hunt_time
 
     def clock_tick(self):
-        # super(Human, self).clock_tick()
+        """
+        Does the clock tick for the Predator and updates the hunt clock
+        :return: None
+        """
         Predator.clock_tick(self)
         self.hunt_clock -= 1
 
     def eat(self):
+        """
+        Does the Predators eat method
+        :return: None
+        """
         Predator.eat(self)
 
     def hunt(self):
-        ''' Human looks for one of the 8 locations with Predator. If found
+        """
+        Human looks for one of the 8 locations with Predator. If found
                moves to that location, updates the hunt clock, removes the Predator
-               '''
+        :return: None
+        """
         if not self.moved:
             location = self.check_grid(Predator)
             if location:
@@ -295,8 +311,21 @@ def main(human_breed_time=6, human_starve_time=3, human_hunt_time=4, initial_hum
          predator_starve_time=3,
          initial_predators=10, prey_breed_time=3, initial_prey=50, \
          size=10, ticks=300):
-    ''' main simulation. Sets defaults, runs event loop, plots at the end
-    '''
+    """
+    main simulation. Sets defaults, runs event loop, plots at the end
+    :param human_breed_time:
+    :param human_starve_time:
+    :param human_hunt_time:
+    :param initial_humans:
+    :param predator_breed_time:
+    :param predator_starve_time:
+    :param initial_predators:
+    :param prey_breed_time:
+    :param initial_prey:
+    :param size:
+    :param ticks:
+    :return:
+    """
     # initialization values
     Predator.breed_time = predator_breed_time
     Predator.starve_time = predator_starve_time

@@ -7,10 +7,10 @@ def ed_read(filename: str, from_index: int = 0, to: int = -1):
     file positions in the half-open range [from, to). If to == -1, the content between from and the end of
     the file will be returned. If parameter to exceeds the file length, then the function raises exception
     ValueError with a corresponding error message.
-    :param filename:
-    :param from_index:
-    :param to:
-    :return:
+    :param filename: file to be read
+    :param from_index: min index to start reading from
+    :param to: max index to stop reading at
+    :return: None
     """
     try:
         with open(filename, mode='r', encoding="utf8") as file:
@@ -28,6 +28,13 @@ def ed_read(filename: str, from_index: int = 0, to: int = -1):
 
 
 def validate_file_read(file, from_index, to):
+    """
+    This will check that from_index and to are valid indexes in the file otherwise raise ValueError
+    :param file: file to check
+    :param from_index: min index
+    :param to: max index
+    :return: None
+    """
     f_length = len(file.read())
     if from_index > f_length or from_index < 0 or to > f_length:
         raise ValueError
@@ -42,9 +49,9 @@ def ed_find(filename, search_str):
     list with index positions in the file text where the string search_str is located. E.g. it returns [4, 100]
     if the string was found at positions 4 and 100. It returns [] if the string was not found.
     :type filename: str
-    :param filename:
-    :param search_str:
-    :return:
+    :param filename: file to be searched
+    :param search_str: string to search
+    :return: list of indexes found
     """
     try:
         search_indexes = []
@@ -73,11 +80,11 @@ def ed_replace(filename, search_str, replace_with, occurrence=-1):
     first, 1 means the second, etc. If the occurrence argument exceeds the actual occurrence index in
     the file of that string, the function does not do the replacement. The function returns the number of
     times the string was replaced.
-    :param filename:
-    :param search_str:
-    :param replace_with:
-    :param occurrence:
-    :return:
+    :param filename: file to be manipulated
+    :param search_str: string to be searched and replaced
+    :param replace_with: string that is used to replace search_str
+    :param occurrence: the exact occurrence in the file or all for occurrence = -1
+    :return: number of strings replaced
     """
     try:
         search_indexes = ed_find(filename, search_str)
@@ -112,9 +119,9 @@ def ed_append(filename, string):
     appends string to the end of the file. If the file does not exist, a new
     file is created with the given file name. The function returns the number of characters written to the
     file.
-    :param filename:
-    :param string:
-    :return:
+    :param filename: file to be manipulated
+    :param string: string to be appended
+    :return: number of characters written
     """
     try:
         from pathlib import Path
@@ -132,6 +139,13 @@ def ed_append(filename, string):
 
 
 def validate_file_tuple(filename, pos_str_col: list):
+    """
+    this will validate each item in the pos_str_col collection and make sure that the first value in the
+    tuple is not < 0 and that it is not > max length of the original file otherwise raise ValueError
+    :param filename:
+    :param pos_str_col:
+    :return:
+    """
     with open(filename, mode='r', encoding="utf8") as file:
         max_length = len(file.read())
         for str_col in pos_str_col:
@@ -147,9 +161,9 @@ def ed_write(filename, pos_str_col):
     the function does not change the file and raises ValueError with a proper error message. In case of
     no errors, the function returns the number of strings written to the file. Assume the strings to be
     written do not overlap.
-    :param filename:
-    :param pos_str_col:
-    :return:
+    :param filename: file to be manipulated
+    :param pos_str_col: collection of tuples
+    :return: number of strings added
     """
     validate_file_tuple(filename, pos_str_col)
     with open(filename, mode='r+', encoding="utf8") as file:
@@ -167,9 +181,9 @@ def ed_insert(filename, pos_str_col):
     invalid (< 0) or greater than the original file content length, the function does not change the file at
     all and raises ValueError with a proper error message. In case of no errors, the function returns the
     number of strings inserted to the file.
-    :param filename:
-    :param pos_str_col:
-    :return:
+    :param filename: file to be manipulated
+    :param pos_str_col: collection of tuples
+    :return: number of strings added
     """
     validate_file_tuple(filename, pos_str_col)
     with open(filename, mode='r+', encoding="utf8") as file:
