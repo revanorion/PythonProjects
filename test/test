@@ -1,4 +1,21 @@
-import os
+def gen_factorials(n):
+    factorial = 1
+    if n > 0:
+        yield factorial
+    n -= 1
+    if n > 0:
+        yield factorial
+    counter = 1
+    n -= 1
+    while n > 0:
+        counter += 1
+        factorial *= counter
+        n -= 1
+        yield factorial
 
-fn = "/a/b/c/d.e"
-print(os.path.split(fn)[0] + ".f")
+
+lst = [x for x in gen_factorials(4)]
+print(lst)
+e_star = sum([1 / x for x in gen_factorials(200)])
+
+print(e_star)
